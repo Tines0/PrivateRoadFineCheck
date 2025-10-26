@@ -1,182 +1,125 @@
-# Private List Check (ZAMA FHEVM)
+# Roadside Privacy Check (Zama FHEVM)
 
-Privacy-preserving whitelist/blacklist membership check on Ethereum (Sepolia) using **Fully Homomorphic Encryption (FHE)** on Zama’s FHEVM.
-
-> **Goal:** let a user prove whether an address is **IN** or **OUT** of a confidential set **without revealing the address or the set**. Only an encrypted boolean is written on-chain; the UI publicly decrypts that boolean later. No raw addresses are ever logged to the console or sent to the chain.
+A minimal dApp demonstrating **private roadside fine verification** on Zama’s FHE EVM (FHEVM). Police officers compare a car’s **encrypted measured speed** against an **encrypted road speed limit**. Only the **verdict** (fine / no fine) is revealed to the officer; raw values remain private at all times.
 
 ---
 
 ## ✨ Features
 
-* **Private membership check** for an input address (encrypted `eaddress`).
-* **Encrypted set** of members stored on-chain; comparison uses `FHE.eq` **only**.
-* **Public result**: contract marks the result `makePubliclyDecryptable`, so anyone can call `publicDecrypt(...)`.
-* **Admin helpers** to add addresses to **whitelist** or **blacklist** (the UI encrypts the raw address locally before calling the contract).
-* **No address leakage**: UI logs only handles, proofs, tx hashes, and decrypted booleans.
-* **Pure static frontend** (no bundler needed) powered by **Zama Relayer SDK**.
+* **Encrypted data in / encrypted data out**: limits and measured speeds are sent as ciphertexts; the contract outputs an encrypted boolean (fine / no fine).
+* **Public vs. private decryption paths**: admin-side limits can be made publicly decryptable for audits; roadside verdicts are **user-decrypt only**.
+* **Officer UX**: hash license plate locally with a salt, submit private check, and decrypt the verdict via EIP‑712 based user decryption.
+* **Admin tools**: set encrypted speed limits per road; optional plain setter for local testing.
+* **Relayer SDK 0.2.0 API**: uses `createEncryptedInput()` positional parameters and `createEIP712()` for `userDecrypt`.
 
 ---
 
-## 🔧 Tech Stack
-
-* **Solidity** (Zama FHEVM):
-
-  * `import { FHE, ebool, eaddress, externalEaddress } from "@fhevm/solidity/lib/FHE.sol"`
-  * Access control with `FHE.allow/allowThis` and **public decrypt** via `FHE.makePubliclyDecryptable`.
-* **Frontend**: Vanilla HTML/JS + **Zama Relayer SDK** (official)
-
-  * `createInstance`, `createEncryptedInput`, `publicDecrypt`.
-  * Ethers v6 for wallet & contract calls.
-
-> Documentation: Zama Relayer SDK — [https://docs.zama.ai/protocol/relayer-sdk-guides/](https://docs.zama.ai/protocol/relayer-sdk-guides/)
-
----
-
-## 🏗️ How it works
-
-1. The UI takes an input **address** and encrypts it in the browser via the Relayer SDK, producing a **ciphertext handle** + **proof**.
-2. The contract iterates through its encrypted set (whitelist or blacklist) and uses **`FHE.eq`** to compare with the input `eaddress`.
-3. The contract emits an event with a **result handle** (encrypted boolean) and flags it as **publicly decryptable**.
-4. The UI invokes **`publicDecrypt`** on that handle to display **IN** or **OUT**.
-
-**Security notes**
-
-* Only the encrypted boolean is ever published. Raw addresses and the set members remain encrypted.
-* Console logging is trimmed to exclude raw addresses.
-
----
-
-## 🧱 Contract
-
-* **Network**: Sepolia (chainId `11155111`)
-* **Address**: `0x8Ac1d3E49A73F8328e43719dCF6fBfeF4405937B`
-* **KMS (Sepolia)**: `0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC`
-* **Key methods (public result)**:
-
-  * `checkWhitelistPublic(bytes32 addrExt, bytes proof) → bytes32`
-  * `checkBlacklistPublic(bytes32 addrExt, bytes proof) → bytes32`
-  * `getLastResultHandle() → bytes32`
-* **Admin methods (UI encrypts the input address before calling):**
-
-  * `addToWhitelist(bytes32 addrExt, bytes proof)`
-  * `addToBlacklist(bytes32 addrExt, bytes proof)`
-* **Event:** `MembershipChecked(address user, bool isWhitelist, uint256 scannedCount, bytes32 resultHandle)`
-
-> Implementation follows Zama guidance: only `FHE.eq` over `eaddress`, **no** arithmetic on `eaddress`.
-
----
-
-## 📁 Repository Layout
+## 📁 Project layout
 
 ```
 frontend/
-  public/
-    index.html        # Standalone UI (no build step)
-contracts/
-  PrivateListCheck.sol
-scripts/              # optional
-hardhat.config.ts     # if you use Hardhat for local tasks
+└─ public/
+   └─ index.html        # the single-page dApp (no build step required)
+contracts/              # (optional) Solidity sources
+hardhat.config.ts       # (optional) if you keep the contract here
 ```
+
+> Your HTML lives at **`frontend/public/index.html`**. You can serve it as a static site (any CDN/GitHub Pages/Netlify) or locally with a tiny HTTP server.
 
 ---
 
-## 🚀 Quick Start (Frontend)
+## 🚀 Quick start (frontend only)
 
-**Prerequisites:** MetaMask, Node.js (optional for serving static files).
+### 1) Prerequisites
 
-### Option A — open as a static file
+* Node.js ≥ 18 (for local static server)
+* A browser wallet (MetaMask) connected to **Sepolia**
 
-* Open `frontend/public/index.html` directly in a modern browser.
-* If your browser blocks crypto features from file://, use Option B below.
+### 2) Serve the static page
 
-### Option B — serve locally
-
-```bash
-# from repo root
-npx serve frontend/public -p 5173    # or any static server
-# then open http://localhost:5173
-```
-
-Alternatives:
+From the repo root:
 
 ```bash
-# python
-python3 -m http.server --directory frontend/public 5173
-# or
-npx http-server frontend/public -p 5173 --cors
+# Option A: using npx http-server (no install)
+npx http-server frontend/public -p 5173 -c-1
+
+# Option B: using serve
+npx serve frontend/public -l 5173
 ```
 
-### Using the dApp
+Open **[http://localhost:5173](http://localhost:5173)** in your browser.
 
-1. Click **Connect MetaMask** (network auto-switches to **Sepolia** if needed).
-2. Choose **Whitelist** or **Blacklist** and paste an address to check (0x…).
-3. Press **Check** → the app encrypts & sends, then shows **IN** or **OUT**.
-4. You can later press **Decrypt Last Result** to re-decrypt the last emitted handle.
+### 3) Configure (optional)
 
-### Admin (optional)
+`index.html` contains a small `CONFIG` block with:
 
-* As the contract owner, paste an address into the **Admin** panel and use:
+```js
+window.CONFIG = {
+  NETWORK_NAME: "Sepolia",
+  CHAIN_ID_HEX: "0xaa36a7",
+  CONTRACT_ADDRESS: "0x31964284b93757861F90Dd0434008b53eFf74A39",
+  RELAYER_URL: "https://relayer.testnet.zama.cloud"
+};
+```
 
-  * **Add to Whitelist** or **Add to Blacklist** — the UI encrypts the address, then calls the contract.
+Adjust if you redeploy or use a different relayer endpoint.
 
 ---
 
-## 🧩 Installation (full project)
+## 🔐 How it works (high level)
+
+1. **Admin sets the limit**: the Relayer SDK encrypts `limit (km/h)` → contract stores encrypted `euint` and marks it for later decryption/reading (ACL).
+2. **Officer checks a vehicle**:
+
+   * Officer inputs `roadId`, plaintext `speed`, and a **license plate hash** (plate + salt, hashed locally on the client).
+   * Client uses Relayer SDK 0.2.0 to encrypt the speed and submits `(roadId, plateHash, speedHandle, proof)` to the contract.
+   * The contract compares `speedCt` vs `limitCt` homomorphically and emits an **encrypted verdict handle**.
+3. **Verdict decryption**: the officer calls `userDecrypt` via Relayer with an **EIP‑712 signature** and obtains a boolean `fine / no fine`.
+
+No party learns the raw speed or limit values from on-chain data.
+
+---
+
+## 🧩 Main user flows
+
+### Officer
+
+* Enter `Road ID`, `License Plate`, and `Salt`.
+* Set measured speed (km/h).
+* **Submit Private Check** → waits for tx → decrypts the verdict via Relayer `userDecrypt`.
+
+### Admin
+
+* Enter `Road ID` and the **limit (km/h)**.
+* Click **Set Encrypted Limit** (production) or **Set Plain Limit (dev)** (development only).
+
+> The UI includes rich console logs (`[APP]`, `[FHE]`, `[DBG]`) to audit each step without exposing secrets visually.
+
+---
+
+## 🛠 Development & Deployment
+
+### Install tooling (optional)
+
+If you also keep/modify the contract in this repo:
 
 ```bash
-# 1) Clone
-git clone https://github.com/<your-org>/<your-repo>.git
-cd <your-repo>
-
-# 2) (optional) Install deps if you plan to compile/deploy contracts
 npm i
-
-# 3) Frontend — run a static server
-npx serve frontend/public -p 5173
+npm i -D hardhat hardhat-deploy @nomicfoundation/hardhat-toolbox
 ```
 
-**Download as ZIP:**
-If this repo is on GitHub, you can download directly:
+### Compile / deploy (optional)
 
+```bash
+npx hardhat compile
+npx hardhat deploy --network sepolia
 ```
-https://github.com/<your-org>/<your-repo>/archive/refs/heads/main.zip
-```
 
-> Replace `<your-org>/<your-repo>` with your namespace.
+Update the deployed address in `frontend/public/index.html` → `CONFIG.CONTRACT_ADDRESS`.
 
----
+### Host the frontend
 
-## 🔗 Relayer/Gateway (Testnet)
+* **Static hosting**: push `frontend/public` to any static host (GitHub Pages, Netlify, Vercel, S3, Cloudflare Pages).
+* **Local**: run one of the static servers shown above.
 
-* **Relayer URL**: `https://relayer.testnet.zama.cloud`
-* **Chain**: Sepolia `11155111`
-* **KMS**: `0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC`
 
----
-
-## 🧪 Console Logging
-
-The console prints only:
-
-* encryption **handle** and **proof** length (never raw addresses),
-* transaction hash and receipt summary,
-* the decrypted boolean value.
-
-To disable logging entirely, search for the small `clog` helper in `index.html` and no-op the calls.
-
----
-
-## ❗ Troubleshooting
-
-* **“Handle … is not allowed for public decryption”**
-  You likely called a non-public method. Use `checkWhitelistPublic` / `checkBlacklistPublic` from the UI.
-* **Invalid address**
-  The UI requires EIP-55 compatible `0x` address (40 hex chars). It validates before sending.
-* **Wrong network**
-  MetaMask must be on **Sepolia**. The app will try to switch automatically.
-
----
-
-## ✅ License
-
-MIT — feel free to use and adapt.

@@ -1,259 +1,408 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin" />
-    <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp" />
-    <title>Private List Check · ZAMA FHEVM (v2)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-      :root{
-        --bg: #faf7f2;           /* light sand */
-        --ink:#10121a;           /* near-black text */
-        --muted:#6b7280;         /* slate */
-        --card:#ffffff;          /* white cards */
-        --stroke:#e7e2da;        /* warm border */
-        --shadow: 0 10px 30px rgba(17,18,26,.08);
-        --radius:16px;
-        --brand:#7c3aed;         /* violet */
-        --accent:#f59e0b;        /* amber */
-        --ok:#10b981;            /* green */
-        --bad:#ef4444;           /* red */
-      }
-      *{box-sizing:border-box}
-      html,body{height:100%}
-      body{
-        font-family:'DM Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-        color:var(--ink);
-        background:
-          radial-gradient(900px 500px at 0% 0%, #eae2ff40, transparent 60%),
-          radial-gradient(800px 600px at 100% 0%, #ffecc240, transparent 60%),
-          var(--bg);
-        margin:0;
-      }
-      .container{max-width:1200px;margin:0 auto;padding:28px 16px 56px}
-      header{
-        display:grid;grid-template-columns:1fr auto;align-items:center;gap:20px;margin-bottom:22px;
-      }
-      .brand{display:flex;align-items:center;gap:14px}
-      .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--brand),#a78bfa);box-shadow:var(--shadow)}
-      h1{font-size:clamp(22px,3.2vw,30px);margin:0;font-weight:800}
-      .sub{font-size:13px;color:var(--muted)}
-      .top-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-      .pill{font-size:12px;color:var(--muted);border:1px solid var(--stroke);padding:8px 10px;border-radius:999px;background:#fff7}
-      .btn{appearance:none;border:1px solid var(--stroke);background:linear-gradient(180deg,#fff,#f8f7f5);padding:12px 16px;border-radius:12px;cursor:pointer;font-weight:800;letter-spacing:.2px;box-shadow:var(--shadow);}
-      .btn:disabled{opacity:.5;cursor:not-allowed}
-      .btn.primary{background:linear-gradient(135deg,#a78bfa,#7c3aed);color:white;border:0}
-      .btn.accent{background:linear-gradient(135deg,#ffd166,#f59e0b);color:#251a00;border:0}
-      .btn.ok{background:linear-gradient(135deg,#34d399,#10b981);color:white;border:0}
-      .btn.bad{background:linear-gradient(135deg,#f87171,#ef4444);color:white;border:0}
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin"/>
+  <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp"/>
+  <title>Roadside Privacy · Zama FHE</title>
+  <style>
+    :root{
+      --bg:#fbfcfe;--ink:#0f172a;--muted:#64748b;--panel:#ffffff;--line:#e5e7eb;
+      --accent:#2563eb;--radius:16px;--shadow:0 12px 30px rgba(15,23,42,.08);
+      --mono: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      --sans: Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(80vw 80vw at 100% -10%, #e7f3ff 0%, transparent 50%),var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.4}
+    .wrap{max-width:1100px;margin:28px auto;padding:0 16px}
+    h1{margin:0 0 4px;font-size:28px;letter-spacing:-.02em}
+    .sub{color:var(--muted);margin-bottom:18px}
+    header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:space-between}
+    .addr{font:600 12px var(--mono);color:var(--muted);border:1px dashed var(--line);padding:6px 10px;border-radius:999px;background:#fff}
+    .btn{appearance:none;border:1px solid var(--line);background:#fff;color:#111827;border-radius:999px;padding:10px 14px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:var(--shadow)}
+    .btn:hover{transform:translateY(-1px)}
+    .btn[disabled]{opacity:.6;cursor:not-allowed;transform:none}
+    .btn.primary{background:linear-gradient(180deg,#3b82f6,#2563eb);border-color:#3b82f6;color:#fff}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+    .card h2{margin:0 0 12px;font-size:18px}
+    .hint{font-size:12px;color:var(--muted);border:1px dashed var(--line);padding:10px;border-radius:12px;background:#fff;margin-bottom:12px}
+    .rows{display:grid;gap:10px}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    label{font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.05em}
+    input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;outline:none;font-weight:700}
+    input:focus{border-color:#93c5fd;box-shadow:0 0 0 4px rgba(59,130,246,.12)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .status{margin-top:18px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px;min-height:54px;display:flex;align-items:center;justify-content:center;font:600 13px var(--mono);color:#0f172a}
+    .status.ok{border-color:#bbf7d0;color:#065f46}
+    .status.err{border-color:#fecaca;color:#991b1b}
+    .bar{height:10px;border-radius:999px;background:repeating-linear-gradient(90deg,#111827 0 18px,#fbbf24 18px 36px);box-shadow:inset 0 0 0 1px var(--line)}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border:1px dashed var(--line);border-radius:12px;background:#fff;font:700 12px var(--mono);color:var(--muted)}
+    .sep{height:1px;background:var(--line);margin:12px 0}
+    small.mono{font:600 11px var(--mono);color:var(--muted)}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div>
+        <h1>Roadside privacy, <span style="color:#2563eb">enforced</span>.</h1>
+        <div class="sub">Compare encrypted speed vs encrypted limit. Only the verdict is revealed to the officer.</div>
+      </div>
+      <div class="row">
+        <span id="officerTag" class="addr">Officer: —</span>
+        <button id="btnConnect" class="btn primary">Connect Wallet</button>
+      </div>
+    </header>
 
-      /* GRID: radically new layout */
-      .grid{display:grid;grid-template-columns: 1.2fr .8fr; gap:18px}
-      .row{display:grid;grid-template-columns:1fr 1fr; gap:18px}
-      @media (max-width: 980px){ .grid{grid-template-columns:1fr} .row{grid-template-columns:1fr} }
-
-      .card{background:var(--card); border:1px solid var(--stroke); border-radius:var(--radius); padding:18px 18px 16px; box-shadow:var(--shadow)}
-      .card h2{font-size:16px;margin:0 0 12px 0;font-weight:800;display:flex;align-items:center;gap:10px}
-      .kbd{border:1px solid var(--stroke);background:#fbfaf9;padding:2px 6px;border-radius:6px;font-size:12px;color:var(--muted)}
-
-      .field{margin-bottom:12px}
-      .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-      .input, select{width:100%;padding:12px 12px;border:1px solid var(--stroke);border-radius:12px;outline:none;background:white;font-size:15px}
-      .input:focus, select:focus{border-color:#c4b5fd; box-shadow:0 0 0 3px #c4b5fd40}
-      .row-actions{display:flex;gap:10px;flex-wrap:wrap}
-
-      .status{margin-top:10px;padding:12px;border-radius:12px;border:1px dashed var(--stroke);background:#fff7;color:var(--muted);font-weight:700}
-      .result{display:none;margin-top:10px;padding:14px;border-radius:12px;border:1px solid var(--stroke);text-align:center;font-weight:900}
-      .result.ok{color:var(--ok);border-color:#34d39980;background:#ecfdf5}
-      .result.bad{color:var(--bad);border-color:#f8717180;background:#fef2f2}
-
-      footer{margin-top:22px;color:var(--muted);font-size:12px;text-align:center}
-      .loading{position:relative}
-      .loading::after{content:"";position:absolute;right:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;border-radius:50%;border:2px solid #00000022;border-top-color:#00000066;animation:spin 1s linear infinite}
-      @keyframes spin{to{transform:translateY(-50%) rotate(1turn)}}
-      code{background:#fbfaf9;border:1px solid var(--stroke);padding:2px 6px;border-radius:6px}
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <header>
-        <div class="brand">
-          <div class="logo"></div>
-          <div>
-            <h1>Private List Check</h1>
-            <div class="sub">ZAMA · FHEVM · Sepolia</div>
+    <section class="grid">
+      <article class="card">
+        <h2>Roadside Check</h2>
+        <div class="hint">Officer enters road id, license plate (hashed on device), and measured speed (km/h). Decryption is private (user-decrypt).</div>
+        <div class="rows">
+          <div class="two">
+            <div>
+              <label for="roadId">Road ID</label>
+              <input id="roadId" type="number" min="1" placeholder="1" />
+            </div>
+            <div>
+              <label for="speed">Speed (km/h)</label>
+              <input id="speed" type="number" min="0" placeholder="80" />
+            </div>
           </div>
-        </div>
-        <div class="top-actions">
-          <span class="pill">Network: <b id="netInfo">—</b></span>
-          <span class="pill">Account: <b id="acctInfo">—</b></span>
-          <button id="btnConnect" class="btn primary">Connect MetaMask</button>
-        </div>
-      </header>
-
-      <!-- NEW LAYOUT: main left column is the Private Check, right column stacks Contract + Admin -->
-      <section class="grid">
-        <!-- LEFT: Private Check (wide) -->
-        <div class="card">
-          <h2>Private Check <span class="kbd">encrypted</span></h2>
+          <div class="two">
+            <div>
+              <label for="plate">License Plate</label>
+              <input id="plate" type="text" placeholder="AA345" />
+            </div>
+            <div>
+              <label for="salt">Salt (secret)</label>
+              <input id="salt" type="text" placeholder="random string" />
+            </div>
+          </div>
           <div class="row">
-            <div class="field">
-              <label>Address to check</label>
-              <input id="addr" class="input" placeholder="0x1234…" />
-            </div>
-            <div class="field">
-              <label>Mode</label>
-              <select id="mode">
-                <option value="whitelist">Whitelist</option>
-                <option value="blacklist">Blacklist</option>
-              </select>
-            </div>
+            <button id="btnCheck" class="btn primary">Submit Private Check</button>
+            <button id="btnPreview" class="btn">Preview Plate Hash</button>
           </div>
-          <div class="row-actions" style="margin:6px 0 2px">
-            <button id="btnCheck" class="btn accent" disabled>Check</button>
-            <button id="btnLast" class="btn" disabled>Decrypt Last Result</button>
-          </div>
-          <div id="status" class="status">Waiting for connection…</div>
-          <div id="result" class="result">—</div>
+          <small id="platePreview" class="mono">—</small>
+          <div id="leftStatus" class="status">—</div>
         </div>
+      </article>
 
-        <!-- RIGHT: Contract info + Admin stacked -->
-        <div class="row">
-          <div class="card">
-            <h2>Contract</h2>
-            <div class="field"><label>Address</label><div class="pill" style="display:inline-block;user-select:all">0x8Ac1d3E49A73F8328e43719dCF6fBfeF4405937B</div></div>
-            <div class="field"><label>Mode</label><div class="pill">KMS (Sepolia)</div></div>
-            <div class="field"><label>KMS</label><div class="pill" style="display:inline-block;user-select:all">0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC</div></div>
-          </div>
-          <div class="card">
-            <h2>Admin (optional)</h2>
-            <div class="field">
-              <label>Address to add (UI encrypts it)</label>
-              <input id="adminHandle" class="input" placeholder="0xabc…" />
+      <article class="card">
+        <h2>Road Limits (Admin)</h2>
+        <div class="hint">Owner uploads encrypted speed limits per road id. For development you may set a plain limit.</div>
+        <div class="rows">
+          <div class="two">
+            <div>
+              <label for="roadIdAdm">Road ID</label>
+              <input id="roadIdAdm" type="number" min="1" placeholder="1" />
             </div>
-            <div class="row-actions">
-              <button id="btnAddW" class="btn ok" disabled>Add to Whitelist</button>
-              <button id="btnAddB" class="btn bad" disabled>Add to Blacklist</button>
+            <div>
+              <label for="limit">Limit (km/h)</label>
+              <input id="limit" type="number" min="1" placeholder="70" />
             </div>
-            <div style="margin-top:8px;color:var(--muted);font-size:12px">Owner-only actions. The raw address never leaves the browser.</div>
           </div>
+          <div class="row">
+            <button id="btnSetEnc" class="btn primary">Set Encrypted Limit</button>
+            <button id="btnSetPlain" class="btn">Set Plain Limit (dev)</button>
+            <button id="btnClear" class="btn">Clear</button>
+          </div>
+          <div class="bar"></div>
+          <div class="row" style="justify-content:space-between">
+            <span class="badge">Contract: <span id="addr" style="font-weight:800;color:#111827"></span></span>
+            <span id="readyBadge" class="badge">—</span>
+          </div>
+          <div id="rightStatus" class="status">Ready</div>
         </div>
-      </section>
+      </article>
+    </section>
 
-      <section class="card" style="margin-top:18px">
-        <h2>How it works</h2>
-        <ol style="margin:0;padding-left:18px;color:var(--muted);line-height:1.6">
-          <li>Address is encrypted locally via ZAMA Relayer SDK.</li>
-          <li>Contract iterates over encrypted set and compares using <code>FHE.eq</code>.</li>
-          <li>Only encrypted boolean is published; UI requests <code>publicDecrypt</code>.</li>
-        </ol>
-      </section>
+    <div class="sep"></div>
+    <small class="mono">Powered by Zama FHE • Relayer SDK 0.2.0 • Ethers v6</small>
+  </main>
 
-      <footer>
-        UI language: English · This page logs handles/proofs/tx hashes only (no raw addresses).
-      </footer>
-    </div>
+  <script type="module" crossorigin src="https://cdn.zama.ai/relayer-sdk-js/0.2.0/relayer-sdk-js.js"></script>
+  <script type="module" crossorigin src="https://cdn.jsdelivr.net/npm/ethers@6.15.0/+esm"></script>
 
-    <!-- Zama Relayer SDK (official) -->
-    <script type="module" crossorigin src="https://cdn.zama.ai/relayer-sdk-js/0.1.2/relayer-sdk-js.js"></script>
-    <!-- ethers v6 -->
-    <script type="module" crossorigin src="https://cdn.jsdelivr.net/npm/ethers@6.15.0/+esm"></script>
+  <script type="module">
+    import { BrowserProvider, Contract, keccak256, toUtf8Bytes } from "https://cdn.jsdelivr.net/npm/ethers@6.15.0/+esm";
+    import { initSDK, createInstance, SepoliaConfig, generateKeypair } from "https://cdn.zama.ai/relayer-sdk-js/0.2.0/relayer-sdk-js.js";
 
-    <script type="module">
-      import { BrowserProvider, Contract, getAddress } from "https://cdn.jsdelivr.net/npm/ethers@6.15.0/+esm";
-      import { initSDK, createInstance, SepoliaConfig } from "https://cdn.zama.ai/relayer-sdk-js/0.1.2/relayer-sdk-js.js";
+    // ===== Config =====
+    const CONTRACT_ADDRESS = "0xC16c6C25dCd9d81f6e657839e23CCa0A0462DcB5";
+    const RELAYER_URL = "https://relayer.testnet.zama.cloud";
 
-      // ===== Console helpers (simple) =====
-      const clog = {
-        banner(){ console.log('Private List Check ready'); },
-        group:t=>console.log(`--- ${t} ---`),
-        end:()=>{}, table:o=>console.log(o), kv:(k,v)=>console.log(`${k}:`, v)
-      }; clog.banner();
+    const abi = [
+      { inputs: [], name: "version", outputs: [{ type: "string" }], stateMutability: "pure", type: "function" },
+      { inputs: [], name: "owner", outputs: [{ type: "address" }], stateMutability: "view", type: "function" },
+      { inputs: [{ name: "newOwner", type: "address" }], name: "transferOwnership", outputs: [], stateMutability: "nonpayable", type: "function" },
+      { inputs: [{ name: "roadId", type: "uint256" }], name: "hasLimit", outputs: [{ type: "bool" }], stateMutability: "view", type: "function" },
+      { inputs: [{ name: "roadId", type: "uint256" }], name: "getPlain", outputs: [{ type: "bool" }, { type: "bool" }, { type: "uint16" }], stateMutability: "view", type: "function" },
+      { inputs: [{ name: "roadId", type: "uint256" }], name: "getEncryptedHandle", outputs: [{ type: "bytes32" }], stateMutability: "view", type: "function" },
+      { inputs: [{ name: "roadId", type: "uint256" }, { name: "limitExt", type: "bytes32" }, { name: "proof", type: "bytes" }], name: "setLimit", outputs: [], stateMutability: "nonpayable", type: "function" },
+      { inputs: [{ name: "roadId", type: "uint256" }, { name: "limit", type: "uint16" }], name: "setLimitPlain", outputs: [], stateMutability: "nonpayable", type: "function" },
+      { inputs: [{ name: "roadId", type: "uint256" }], name: "clearLimit", outputs: [], stateMutability: "nonpayable", type: "function" },
+      { inputs: [{ name: "roadId", type: "uint256" }, { name: "plateHash", type: "bytes32" }, { name: "speedExt", type: "bytes32" }, { name: "proof", type: "bytes" }], name: "checkVehicle", outputs: [{ type: "bytes32" }], stateMutability: "nonpayable", type: "function" },
+      { inputs: [{ name: "valueExt", type: "bytes32" }, { name: "proof", type: "bytes" }], name: "selfTestProof", outputs: [{ type: "bytes32" }], stateMutability: "nonpayable", type: "function" },
+      { anonymous:false, inputs:[{ indexed:true, name:"officer", type:"address" },{ indexed:true, name:"roadId", type:"uint256" },{ indexed:false, name:"plateHash", type:"bytes32" },{ indexed:false, name:"verdictHandle", type:"bytes32" }], name:"VehicleChecked", type:"event" },
+      { anonymous:false, inputs:[{ indexed:true, name:"roadId", type:"uint256" },{ indexed:false, name:"encrypted", type:"bool" },{ indexed:false, name:"plainValueIfAny", type:"uint16" }], name:"RoadLimitSet", type:"event" },
+      { anonymous:false, inputs:[{ indexed:true, name:"roadId", type:"uint256" }], name:"RoadLimitCleared", type:"event" },
+    ];
 
-      // ===== DOM =====
-      const $ = (id)=>document.getElementById(id);
-      const btnConnect = $("btnConnect");
-      const btnCheck   = $("btnCheck");
-      const btnLast    = $("btnLast");
-      const btnAddW    = $("btnAddW");
-      const btnAddB    = $("btnAddB");
-      const addrInput  = $("addr");
-      const adminHandle= $("adminHandle");
-      const statusEl   = $("status");
-      const resultEl   = $("result");
-      const netInfo    = $("netInfo");
-      const acctInfo   = $("acctInfo");
-      const modeSel    = $("mode");
+    // ===== UI =====
+    const $ = (id) => document.getElementById(id);
+    const els = {
+      btnConnect: $("btnConnect"),
+      officerTag: $("officerTag"),
+      addr: $("addr"),
+      readyBadge: $("readyBadge"),
+      roadId: $("roadId"),
+      speed: $("speed"),
+      plate: $("plate"),
+      salt: $("salt"),
+      platePreview: $("platePreview"),
+      btnPreview: $("btnPreview"),
+      btnCheck: $("btnCheck"),
+      leftStatus: $("leftStatus"),
+      roadIdAdm: $("roadIdAdm"),
+      limit: $("limit"),
+      btnSetEnc: $("btnSetEnc"),
+      btnSetPlain: $("btnSetPlain"),
+      btnClear: $("btnClear"),
+      rightStatus: $("rightStatus"),
+    };
+    els.addr.textContent = CONTRACT_ADDRESS;
 
-      // ===== Config =====
-      const CONTRACT_ADDRESS = getAddress("0x8Ac1d3E49A73F8328e43719dCF6fBfeF4405937B");
-      const RELAYER_URL = "https://relayer.testnet.zama.cloud";
-      const KMS_ADDRESS = getAddress("0x1364cBBf2cDF5032C47d8226a6f6FBD2AFCDacAC");
-      const CHAIN_HEX = "0xaa36a7"; // Sepolia
-      const CHAIN_ID  = 11155111n;
+    // ===== Logging helpers (как в твоём примере) =====
+    const stamp = () => new Date().toISOString().replace('T',' ').replace('Z','');
+    const DLOG = {
+      info:(s,...a)=>console.log(`%c[APP ${stamp()}]`, 'color:#334155', s, ...a),
+      ok:(s,...a)=>console.log(`%c[APP ${stamp()}]`, 'color:#059669', s, ...a),
+      warn:(s,...a)=>console.log(`%c[APP ${stamp()}]`, 'color:#b45309', s, ...a),
+      err:(s,...a)=>console.error(`%c[APP ${stamp()}]`, 'color:#b91c1c', s, ...a),
+      group:(title)=>console.groupCollapsed(`%c${title}`, 'color:#2563eb'),
+      end:()=>console.groupEnd(),
+    };
+    const kb = n => (n/1024).toFixed(2)+' KB';
+    const prev = (s, n=10) => (s = String(s), s.length>2*n ? s.slice(0,n)+'…'+s.slice(-n) : s);
 
-      // ===== ABI =====
-      const abi = [
-        { inputs:[{name:"addrExt",type:"bytes32"},{name:"proof",type:"bytes"}], name:"checkWhitelistPublic", outputs:[{name:"",type:"bytes32"}], stateMutability:"nonpayable", type:"function" },
-        { inputs:[{name:"addrExt",type:"bytes32"},{name:"proof",type:"bytes"}], name:"checkBlacklistPublic", outputs:[{name:"",type:"bytes32"}], stateMutability:"nonpayable", type:"function" },
-        { inputs:[{name:"addrExt",type:"bytes32"},{name:"proof",type:"bytes"}], name:"addToWhitelist", outputs:[], stateMutability:"nonpayable", type:"function" },
-        { inputs:[{name:"addrExt",type:"bytes32"},{name:"proof",type:"bytes"}], name:"addToBlacklist", outputs:[], stateMutability:"nonpayable", type:"function" },
-        { inputs:[], name:"getLastResultHandle", outputs:[{name:"",type:"bytes32"}], stateMutability:"view", type:"function" },
-        { anonymous:false, inputs:[
-            {indexed:true,name:"user",type:"address"},
-            {indexed:false,name:"isWhitelist",type:"bool"},
-            {indexed:false,name:"scannedCount",type:"uint256"},
-            {indexed:false,name:"resultHandle",type:"bytes32"}
-          ], name:"MembershipChecked", type:"event" }
-      ];
+    const FHELOG = {
+      encStart(meta){ DLOG.group('[FHE] encrypt → createInput'); console.log('meta:', meta); },
+      encAdd(tag,val){ console.log('add:', tag, val); },
+      encDone(handles, proofBytes){ console.log('handles:', handles, 'proof(bytes):', proofBytes, 'size:', kb(proofBytes)); DLOG.end(); },
+      staticOk(){ DLOG.ok('[FHE] staticCall OK'); },
+      txSent(hash){ DLOG.info('[TX] sent', hash); },
+      txMined(rcpt){ DLOG.ok('[TX] mined', { blockNumber: rcpt.blockNumber, gasUsed: String(rcpt.gasUsed||'') }); },
+      eventParsed(name, obj){ DLOG.info('[EVT] '+name, obj); },
+      userDecStart(meta){ DLOG.group('[FHE] userDecrypt'); console.log('meta:', meta); },
+      userDecSig(sig){ console.log('sig:', prev(sig, 16)); },
+      userDecDone(out){ console.log('result:', out); DLOG.end(); },
+    };
 
-      // ===== State =====
-      let provider, signer, user, relayer, contract; let lastHandle = null;
+    // ===== Helpers =====
+    function short(a){ return a ? a.slice(0,6)+"…"+a.slice(-4) : "—"; }
+    function setStatus(el, text, ok=null){
+      el.textContent = text;
+      el.className = "status"+(ok===true?" ok": ok===false?" err": "");
+    }
+    const asBig = (x)=>{ try{ return BigInt(x); }catch{ return 0n; } };
+    function plateHash(plate, salt){ return keccak256(toUtf8Bytes((plate||"").trim()+"|"+(salt||"").trim())); }
 
-      // ===== UI helpers =====
-      const setStatus = (t)=> statusEl.textContent=t;
-      function showResult(ok){ resultEl.style.display='block'; resultEl.classList.remove('ok','bad'); resultEl.classList.add(ok?'ok':'bad'); resultEl.textContent = ok? '✅ IN LIST' : '❌ OUT OF LIST'; }
-      const setLoading = (el,on)=> el && el.classList.toggle('loading', !!on);
-      function refreshButtons(){
-        const okAddr  = /^0x[0-9a-fA-F]{40}$/.test((addrInput.value||'').trim());
-        const okAdmin = /^0x[0-9a-fA-F]{40}$/.test((adminHandle.value||'').trim());
-        if (btnCheck) btnCheck.disabled = !signer || !okAddr;
-        if (btnAddW) btnAddW.disabled = !signer || !okAdmin;
-        if (btnAddB) btnAddB.disabled = !signer || !okAdmin;
+    // ===== State =====
+    let provider, signer, user, contract, relayer, isOwner=false;
+
+    // ===== Connect =====
+    els.btnConnect.onclick = async () => {
+      try{
+        DLOG.group('Connect flow');
+        if(!window.ethereum) throw new Error("MetaMask not found");
+        provider = new BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const net = await provider.getNetwork();
+        DLOG.info('Network:', String(net.chainId));
+        if (net.chainId !== 11155111n){
+          DLOG.warn('Switching to Sepolia...');
+          await provider.send("wallet_switchEthereumChain", [{ chainId: "0xaa36a7" }]);
+        }
+        signer = await provider.getSigner();
+        user = await signer.getAddress();
+        contract = new Contract(CONTRACT_ADDRESS, abi, signer);
+        els.btnConnect.disabled = true; els.btnConnect.textContent = short(user);
+        els.officerTag.textContent = "Officer: " + short(user);
+        DLOG.ok('Connected as', user);
+
+        setStatus(els.rightStatus, "Bootstrapping Relayer…");
+        await initSDK();
+        relayer = await createInstance({ ...SepoliaConfig, relayerUrl: RELAYER_URL, network: window.ethereum, debug: true });
+        els.readyBadge.textContent = "Relayer ready ✓";
+        DLOG.ok('Relayer ready', RELAYER_URL);
+
+        try{ const o = await contract.owner(); isOwner = (o.toLowerCase() === user.toLowerCase()); DLOG.info('Owner:', o); }catch{}
+        els.btnSetEnc.disabled = !isOwner; els.btnSetPlain.disabled = !isOwner; els.btnClear.disabled = !isOwner;
+
+        setStatus(els.rightStatus, "Ready");
+      }catch(e){
+        DLOG.err('Connect error', e);
+        setStatus(els.rightStatus, e.message || String(e), false);
+      } finally { DLOG.end(); }
+    };
+
+    // ===== Preview plate hash =====
+    els.btnPreview.onclick = () => {
+      const h = plateHash(els.plate.value, els.salt.value);
+      els.platePreview.textContent = h;
+      DLOG.info('Plate hash =', h);
+    };
+
+    // ===== Admin: set encrypted limit =====
+    els.btnSetEnc.onclick = async () => {
+      try{
+        const roadId = BigInt(els.roadIdAdm.value || "0");
+        const limit = Number(els.limit.value || "0");
+        if (roadId<=0n) throw new Error("Enter valid road id");
+        if (!Number.isFinite(limit) || limit<=0 || limit>65535) throw new Error("Enter limit 1..65535");
+
+        setStatus(els.rightStatus, "Encrypting limit…");
+        FHELOG.encStart({ contract: CONTRACT_ADDRESS, roadId: String(roadId) });
+        const buf = relayer.createEncryptedInput(CONTRACT_ADDRESS, user);
+        FHELOG.encAdd('add16(limit)', limit);
+        buf.add16(limit);
+        const { handles, inputProof } = await buf.encrypt();
+        FHELOG.encDone(handles, inputProof?.length ?? 0);
+
+        setStatus(els.rightStatus, "Submitting…");
+        await contract.setLimit.staticCall(roadId, handles[0], inputProof);
+        FHELOG.staticOk();
+
+        const tx = await contract.setLimit(roadId, handles[0], inputProof);
+        FHELOG.txSent(tx.hash);
+        const rcpt = await tx.wait();
+        FHELOG.txMined(rcpt);
+
+        setStatus(els.rightStatus, "Encrypted limit set ✓", true);
+      }catch(e){
+        DLOG.err('setEnc error', e);
+        setStatus(els.rightStatus, e.message || String(e), false);
       }
-      function validateAddress(raw){ const s=(raw||'').trim(); if(!s) throw new Error('Enter an address'); if(!/^0x[0-9a-fA-F]{40}$/.test(s)) throw new Error('Invalid address format (0x + 40 hex)'); return getAddress(s); }
-      addrInput.addEventListener('input', refreshButtons); adminHandle.addEventListener('input', refreshButtons);
+    };
 
-      // ===== Network guards =====
-      async function ensureSepolia(){ const id = await window.ethereum.request({ method:'eth_chainId' }); if (BigInt(id)!==CHAIN_ID){ await window.ethereum.request({ method:'wallet_switchEthereumChain', params:[{chainId: CHAIN_HEX}] }); } }
+    // ===== Admin: plain limit =====
+    els.btnSetPlain.onclick = async () => {
+      try{
+        const roadId = BigInt(els.roadIdAdm.value || "0");
+        const limit = BigInt(els.limit.value || "0");
+        if (roadId<=0n) throw new Error("Enter valid road id");
+        if (limit<=0n || limit>65535n) throw new Error("Enter limit 1..65535");
+        setStatus(els.rightStatus, "Submitting plain…");
+        const tx = await contract.setLimitPlain(roadId, limit);
+        FHELOG.txSent(tx.hash);
+        const rcpt = await tx.wait();
+        FHELOG.txMined(rcpt);
+        setStatus(els.rightStatus, "Plain limit set ✓", true);
+      }catch(e){
+        DLOG.err('setPlain error', e);
+        setStatus(els.rightStatus, e.message || String(e), false);
+      }
+    };
 
-      // ===== Relayer helpers =====
-      function addAddressToBuf(buf, address){ if (typeof buf.addAddress==='function'){ buf.addAddress(address); return 'addAddress'; } if (typeof buf.add160==='function'){ buf.add160(BigInt(address)); return 'add160'; } throw new Error('Relayer SDK missing addAddress/add160'); }
-      const toHex = (u8)=> '0x'+Array.from(u8).map(b=>b.toString(16).padStart(2,'0')).join('');
-      async function encryptAddress(address){ clog.group('ENCRYPTION'); const buf = relayer.createEncryptedInput(CONTRACT_ADDRESS, user); const used = addAddressToBuf(buf, address); clog.kv('inputMethod', used); const { handles, inputProof } = await buf.encrypt(); const handle = toHex(handles[0]); const proof = toHex(inputProof); clog.table({ handle, proofBytes: inputProof.length, proofPreview: proof.slice(0,66)+'…' }); clog.end(); return { handle, proof }; }
+    // ===== Admin: clear =====
+    els.btnClear.onclick = async () => {
+      try{
+        const roadId = BigInt(els.roadIdAdm.value || "0");
+        if (roadId<=0n) throw new Error("Enter valid road id");
+        setStatus(els.rightStatus, "Clearing…");
+        const tx = await contract.clearLimit(roadId);
+        FHELOG.txSent(tx.hash);
+        const rcpt = await tx.wait();
+        FHELOG.txMined(rcpt);
+        setStatus(els.rightStatus, "Cleared ✓", true);
+      }catch(e){
+        DLOG.err('clear error', e);
+        setStatus(els.rightStatus, e.message || String(e), false);
+      }
+    };
 
-      async function callCheckPublic(mode, handle, proof){ const fn = mode==='blacklist' ? 'checkBlacklistPublic' : 'checkWhitelistPublic'; clog.group('CALL (public)'); clog.table({ fn, handle, proofLen: proof.length }); const tx = await contract[fn](handle, proof, { gasLimit: 3_000_000 }); clog.kv('txHash', tx.hash); const receipt = await tx.wait(); clog.table({ blockNumber: receipt.blockNumber, gasUsed: receipt.gasUsed.toString(), status: receipt.status }); let evtHandle=null; for (const lg of receipt.logs){ try{ const parsed=contract.interface.parseLog(lg); if(parsed && parsed.name==='MembershipChecked'){ evtHandle = parsed.args.resultHandle; clog.kv('event.handle', evtHandle); break; } }catch{} } if(!evtHandle){ try{ evtHandle = await contract.getLastResultHandle(); clog.kv('getLastResultHandle()', evtHandle); }catch{} } clog.end(); if(!evtHandle) throw new Error('No public handle returned by contract'); lastHandle = evtHandle; return evtHandle; }
+    // ===== Roadside check (private) =====
+    els.btnCheck.onclick = async () => {
+      try{
+        if (!relayer || !contract) throw new Error("Connect wallet first");
+        const roadId = BigInt(els.roadId.value || "0");
+        const sp = Number(els.speed.value || "0");
+        const plate = (els.plate.value||"").trim();
+        const salt = (els.salt.value||"").trim();
+        if (roadId<=0n) throw new Error("Enter valid road id");
+        if (!Number.isFinite(sp) || sp<0 || sp>65535) throw new Error("Enter speed 0..65535");
+        if (!plate) throw new Error("Enter license plate");
+        if (!salt) throw new Error("Enter salt");
 
-      async function decryptPublic(handle){ clog.group('DECRYPT (public)'); const out = await relayer.publicDecrypt([handle]); const value = Array.isArray(out) ? out[0] : out[handle]; clog.table({ handle, decrypted: String(value) }); clog.end(); return (typeof value==='bigint') ? (value===1n) : (Number(value)===1); }
+        const ph = plateHash(plate, salt);
+        DLOG.info('plateHash', ph);
 
-      // ===== Connect =====
-      btnConnect.addEventListener('click', async ()=>{ try{ setLoading(btnConnect,true); if(!window.ethereum) throw new Error('MetaMask not found'); await ensureSepolia(); provider = new BrowserProvider(window.ethereum); await provider.send('eth_requestAccounts', []); signer = await provider.getSigner(); user = await signer.getAddress(); const net = await provider.getNetwork(); netInfo.textContent = `Sepolia (${net.chainId.toString()})`; acctInfo.textContent = `${user.slice(0,6)}…${user.slice(-4)}`; const code = await provider.getCode(KMS_ADDRESS); if(code==='0x') throw new Error('KMS contract not found'); await initSDK(); relayer = await createInstance({ ...SepoliaConfig, network: window.ethereum, relayerUrl: RELAYER_URL, debug:true }); contract = new Contract(CONTRACT_ADDRESS, abi, signer); setStatus('Connected. Ready to check.'); btnLast.disabled = false; refreshButtons(); clog.group('SETUP'); console.log('Ready'); clog.end(); }catch(e){ console.error(e); setStatus('❌ '+e.message); } finally{ setLoading(btnConnect,false); } });
+        setStatus(els.leftStatus, "Encrypting speed…");
+        FHELOG.encStart({ contract: CONTRACT_ADDRESS, roadId: String(roadId), plateHash: ph });
+        const buf = relayer.createEncryptedInput(CONTRACT_ADDRESS, user);
+        FHELOG.encAdd('add16(speed)', sp);
+        buf.add16(sp);
+        const { handles, inputProof } = await buf.encrypt();
+        FHELOG.encDone(handles, inputProof?.length ?? 0);
 
-      // ===== Actions =====
-      btnCheck.addEventListener('click', async ()=>{ try{ if(!signer || !relayer) throw new Error('Connect wallet first'); const address = validateAddress(addrInput.value); setLoading(btnCheck,true); setStatus('Encrypting & sending…'); resultEl.style.display='none'; const { handle, proof } = await encryptAddress(address); const publicHandle = await callCheckPublic(modeSel.value, handle, proof); const ok = await decryptPublic(publicHandle); showResult(ok); setStatus('✅ Done'); }catch(e){ console.error(e); setStatus('❌ '+e.message); } finally{ setLoading(btnCheck,false); } });
+        setStatus(els.leftStatus, "Submitting…");
+        await contract.checkVehicle.staticCall(roadId, ph, handles[0], inputProof);
+        FHELOG.staticOk();
 
-      btnLast.addEventListener('click', async ()=>{ try{ if(!relayer) throw new Error('Relayer not ready'); if(!lastHandle) throw new Error('No handle cached yet'); setLoading(btnLast,true); setStatus('Decrypting last result…'); const ok = await decryptPublic(lastHandle); showResult(ok); setStatus('✅ Done'); }catch(e){ console.error(e); setStatus('❌ '+e.message); } finally{ setLoading(btnLast,false); } });
+        const tx = await contract.checkVehicle(roadId, ph, handles[0], inputProof);
+        FHELOG.txSent(tx.hash);
+        const rcpt = await tx.wait();
+        FHELOG.txMined(rcpt);
 
-      btnAddW.addEventListener('click', async ()=>{ try{ if(!contract) throw new Error('Connect first'); const address = validateAddress(adminHandle.value); setLoading(btnAddW,true); const { handle, proof } = await encryptAddress(address); clog.group('ADMIN addToWhitelist'); clog.table({ handle, proofLen: proof.length }); const tx = await contract.addToWhitelist(handle, proof, { gasLimit: 3_000_000 }); console.log('txHash', tx.hash); await tx.wait(); clog.end(); setStatus('✅ Added to whitelist (encrypted)'); }catch(e){ console.error(e); setStatus('❌ '+e.message); } finally{ setLoading(btnAddW,false); } });
+        // Parse VehicleChecked
+        const topic = contract.interface.getEvent("VehicleChecked").topicHash;
+        const log = rcpt.logs.find(l => l.topics?.[0] === topic);
+        if (!log) throw new Error("Event not found");
+        const parsed = contract.interface.parseLog(log);
+        const verdictH = parsed.args.verdictHandle;
+        FHELOG.eventParsed('VehicleChecked', { officer: parsed.args.officer, roadId: String(parsed.args.roadId), verdictHandle: verdictH });
 
-      btnAddB.addEventListener('click', async ()=>{ try{ if(!contract) throw new Error('Connect first'); const address = validateAddress(adminHandle.value); setLoading(btnAddB,true); const { handle, proof } = await encryptAddress(address); clog.group('ADMIN addToBlacklist'); clog.table({ handle, proofLen: proof.length }); const tx = await contract.addToBlacklist(handle, proof, { gasLimit: 3_000_000 }); console.log('txHash', tx.hash); await tx.wait(); clog.end(); setStatus('✅ Added to blacklist (encrypted)'); }catch(e){ console.error(e); setStatus('❌ '+e.message); } finally{ setLoading(btnAddB,false); } });
+        setStatus(els.leftStatus, "Decrypting verdict…");
+        // userDecrypt
+        const kp = await generateKeypair();
+        const startTs = Math.floor(Date.now()/1000).toString();
+        const days = "7";
+        const eip = relayer.createEIP712(kp.publicKey, [CONTRACT_ADDRESS], startTs, days);
+        const sig = await signer.signTypedData(
+          eip.domain,
+          { UserDecryptRequestVerification: eip.types.UserDecryptRequestVerification },
+          eip.message
+        );
+        FHELOG.userDecStart({ handle: verdictH, startTs, days });
+        FHELOG.userDecSig(sig);
 
-      refreshButtons();
-      if (window.ethereum?.on){ window.ethereum.on('chainChanged', ()=> window.location.reload()); window.ethereum.on('accountsChanged', ()=> window.location.reload()); }
-    </script>
-  </body>
+        const pairs = [{ handle: verdictH, contractAddress: CONTRACT_ADDRESS }];
+        const out = await relayer.userDecrypt(pairs, kp.privateKey, kp.publicKey, sig.replace("0x",""), [CONTRACT_ADDRESS], user, startTs, days);
+        FHELOG.userDecDone(Object.keys(out));
+
+        let v = out[verdictH];
+        if (v===undefined){
+          const k = Object.keys(out).find(k=>k.toLowerCase()===verdictH.toLowerCase());
+          v = k ? out[k] : undefined;
+        }
+        const verdict = asBig(v);
+
+        if (verdict === 1n){
+          setStatus(els.leftStatus, "🚨 Verdict: FINE (speed > limit)", false);
+        } else if (verdict === 0n){
+          setStatus(els.leftStatus, "✅ Verdict: OK (within limit)", true);
+        } else {
+          setStatus(els.leftStatus, "Unexpected verdict: "+String(verdict), false);
+        }
+      }catch(e){
+        DLOG.err('check error', e);
+        setStatus(els.leftStatus, e.message || String(e), false);
+      }
+    };
+  </script>
+</body>
 </html>
